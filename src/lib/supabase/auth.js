@@ -4,7 +4,7 @@ export const signInWithGoogle = async () => {
   const { error } = await supabase.auth.signInWithOAuth({
     provider: "google",
     options: {
-      redirectTo: `${window.location.origin}/dashboard`,
+      redirectTo: `${window.location.origin}/auth/callback`,
     },
   });
   return { error };
@@ -24,7 +24,7 @@ export const onAuthStateChange = (callback) => {
   const {
     data: { subscription },
   } = supabase.auth.onAuthStateChange((event, session) => {
-    callback(session);
+    callback(event, session);
   });
   return subscription;
 };

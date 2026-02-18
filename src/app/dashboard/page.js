@@ -53,11 +53,15 @@ export default function Dashboard() {
 
     init();
 
-    const subscription = onAuthStateChange((session) => {
-      if (!session) {
+    const subscription = onAuthStateChange((event, session) => {
+      if (event === "SIGNED_OUT") {
         setUser(null);
         setBookmarks([]);
         router.replace("/signup");
+        return;
+      }
+
+      if (!session) {
         return;
       }
 

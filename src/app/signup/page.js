@@ -28,7 +28,7 @@ export default function SignupPage() {
 
     checkSession();
 
-    const subscription = onAuthStateChange((session) => {
+    const subscription = onAuthStateChange((_event, session) => {
       if (session) {
         router.replace("/dashboard");
       }
