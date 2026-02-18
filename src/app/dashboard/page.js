@@ -79,7 +79,7 @@ export default function Dashboard() {
         setBookmarks((prev) => [payload.new, ...prev]);
       } else if (payload.eventType === "UPDATE") {
         setBookmarks((prev) =>
-          prev.map((b) => (b.id === payload.new.id ? payload.new : b))
+          prev.map((b) => (b.id === payload.new.id ? payload.new : b)),
         );
       } else if (payload.eventType === "DELETE") {
         setBookmarks((prev) => prev.filter((b) => b.id !== payload.old.id));
@@ -90,7 +90,10 @@ export default function Dashboard() {
   }, [user]);
 
   const handleAddBookmark = async (newBookmark) => {
-    const { data, error } = await addBookmark(newBookmark.title, newBookmark.url);
+    const { data, error } = await addBookmark(
+      newBookmark.title,
+      newBookmark.url,
+    );
     if (error) {
       alert("Error adding bookmark: " + error.message);
     }
@@ -111,7 +114,7 @@ export default function Dashboard() {
     const { error } = await updateBookmark(
       updatedBookmark.id,
       updatedBookmark.title,
-      updatedBookmark.url
+      updatedBookmark.url,
     );
     if (error) {
       alert("Error updating bookmark: " + error.message);
