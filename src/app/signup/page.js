@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { supabase } from "@/lib/supabase/client";
 import {
   getSession,
   onAuthStateChange,
@@ -19,6 +20,27 @@ export default function SignupPage() {
     let active = true;
 
     const checkSession = async () => {
+      const hashParams = new URLSearchParams(window.location.hash.slice(1));
+      const accessToken = hashParams.get("access_token");
+      const refreshToken = hashParams.get("refresh_token");
+
+      if (accessToken && refreshToken) {
+        await supabase.auth.setSession({
+          access_token: accessToken,
+          refresh_token: refreshToken,
+        });
+
+        if (!active) return;
+
+        window.history.replaceState(
+          {},
+          document.title,
+          `${window.location.pathname}${window.location.search}`,
+        );
+        router.replace("/dashboard");
+        return;
+      }
+
       const { data } = await getSession();
       if (!active) return;
       if (data?.session) {
