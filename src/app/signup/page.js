@@ -1,15 +1,40 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { signInWithGoogle } from "@/lib/supabase/auth";
+import { getSession, onAuthStateChange, signInWithGoogle } from "@/lib/supabase/auth";
 
 export default function SignupPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    let active = true;
+
+    const checkSession = async () => {
+      const { data } = await getSession();
+      if (!active) return;
+      if (data?.session) {
+        router.replace("/dashboard");
+      }
+    };
+
+    checkSession();
+
+    const subscription = onAuthStateChange((session) => {
+      if (session) {
+        router.replace("/dashboard");
+      }
+    });
+
+    return () => {
+      active = false;
+      subscription?.unsubscribe();
+    };
+  }, [router]);
 
   const handleGoogleLogin = async () => {
     setIsLoading(true);

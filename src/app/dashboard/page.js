@@ -13,7 +13,7 @@ import {
   deleteBookmark,
   subscribeToBookmarks,
 } from "@/lib/supabase/bookmarks";
-import { onAuthStateChange, signOut } from "@/lib/supabase/auth";
+import { getSession, onAuthStateChange, signOut } from "@/lib/supabase/auth";
 
 export default function Dashboard() {
   const router = useRouter();
@@ -34,16 +34,41 @@ export default function Dashboard() {
   };
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChange((session) => {
+    let active = true;
+
+    const init = async () => {
+      const { data } = await getSession();
+      if (!active) return;
+
+      const session = data?.session;
       if (!session) {
-        router.push("/signup");
-      } else {
-        setUser(session.user);
-        loadBookmarks();
+        setLoading(false);
+        router.replace("/signup");
+        return;
       }
+
+      setUser(session.user);
+      await loadBookmarks();
+    };
+
+    init();
+
+    const subscription = onAuthStateChange((session) => {
+      if (!session) {
+        setUser(null);
+        setBookmarks([]);
+        router.replace("/signup");
+        return;
+      }
+
+      setUser(session.user);
+      loadBookmarks();
     });
 
-    return () => unsubscribe?.unsubscribe();
+    return () => {
+      active = false;
+      subscription?.unsubscribe();
+    };
   }, [router]);
 
   useEffect(() => {
